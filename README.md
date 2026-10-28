@@ -51,7 +51,7 @@ Sistem ini diajukan untuk memenuhi tugas Evaluasi Tengah Semester (ETS) mata kul
 - **Notebook Google Colab (Proof of Concept Python)**:  
   [https://colab.research.google.com/drive/1UkFa2gaso8EK0PSTxS3tQhFhC4OTpD9f?usp=sharing](https://colab.research.google.com/drive/1UkFa2gaso8EK0PSTxS3tQhFhC4OTpD9f?usp=sharing)
 - **Repositori GitHub**:  
-  [https://github.com/Noteee168/FINRA](https://github.com/Noteee168/FINRA)
+  [https://github.com/JidanAsyura/FINRA](https://github.com/JidanAsyura/FINRA)
 
 ---
 
@@ -59,7 +59,7 @@ Sistem ini diajukan untuk memenuhi tugas Evaluasi Tengah Semester (ETS) mata kul
 
 ```bash
 # 1. Clone repositori
-git clone https://github.com/Noteee168/FINRA.git
+git clone https://github.com/JidanAsyura/FINRA.git
 cd FINRA
 
 # 2. Setup Virtual Environment (opsional)
