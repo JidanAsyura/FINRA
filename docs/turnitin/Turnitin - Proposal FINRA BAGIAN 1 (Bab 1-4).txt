@@ -1,0 +1,108 @@
+BAB 1  PENDAHULUAN
+============================================================
+
+Latar Belakang dan Konteks (5W + 1H)
+Bagi mahasiswa dan pekerja pemula, mencatat pengeluaran harian sering kali merepotkan. Catatan belanja mudah terlewat, pengelompokan pos pengeluaran kerap tidak konsisten, dan kondisi keuangan biasanya baru disadari saat saldo sudah menipis. Masalah ini memperlihatkan pentingnya alat bantu yang praktis dan langsung menyajikan kondisi anggaran secara jelas. Sistem FINRA dirancang untuk memenuhi kebutuhan pencatatan tersebut.
+FINRA bekerja sebagai asisten percakapan yang menghubungkan pemrosesan bahasa alami, pengelompokan pos transaksi, dan evaluasi anggaran. Pengguna tidak perlu mengisi formulir panjang secara manual, melainkan cukup mengetik kalimat santai seperti "tadi habis 25 ribu buat ngopi". Sistem langsung mengenali tanggal, nominal, dan kategori belanja, meminta konfirmasi pengguna, lalu memberi peringatan jika alokasi pos pengeluaran sudah mendekati batas.
+Sistem ini ditujukan bagi mahasiswa Universitas Bhayangkara Jakarta Raya serta masyarakat umum lewat antarmuka web responsif di komputer maupun ponsel. Sisi backend dibangun menggunakan PHP dan Laravel, didukung basis data relasional, serta layanan Google Gemini API untuk pengolahan bahasa. Sistem juga dilengkapi mekanisme aturan cadangan (rule-based fallback) agar pencatatan dasar tetap berjalan normal saat koneksi AI terganggu.
+Pengguna dapat memanfaatkan FINRA setiap saat untuk mencatat mutasi kas harian, memantau batas pengeluaran, serta melihat rangkuman mingguan. Rencana pengembangan lanjutan mencakup pembacaan struk belanja dan impor notifikasi email. Setiap data yang masuk diperiksa oleh pengatur alur agen (orchestrator) untuk memastikan nominal benar sebelum disimpan ke basis data, sehingga kendali keuangan tetap berada di tangan pengguna.
+
+Permasalahan
+Pencatatan keuangan manual yang repetitif membuat mahasiswa sering mengabaikan pengelolaan anggaran harian.
+Kategori belanja sering tidak konsisten karena pengguna bingung menentukan pos pengeluaran secara manual.
+Kurangnya ringkasan analitis dari riwayat transaksi terdahulu untuk mencegah defisit di pertengahan bulan.
+Ketiadaan asisten cerdas yang mampu menerjemahkan kalimat sehari-hari (misalnya "tadi habis 25rb buat ngopi") menjadi data transaksi siap simpan.
+
+Tujuan
+Merancang agen cerdas yang mampu mengekstrak pesan teks santai menjadi struktur data transaksi yang rapi.
+Menerapkan klasifikasi otomatis pos pengeluaran memanfaatkan model bahasa dan dataset referensi.
+Menyediakan tampilan ringkasan anggaran serta notifikasi peringatan (budget alert) saat pemakaian mendekati pagu maksimal.
+Menyusun rancangan teknis modular untuk implementasi prototipe berbasis web.
+
+Ruang Lingkup
+Pemrosesan teks transaksi harian menggunakan teknik NLP dan model bahasa (LLM).
+Pemanfaatan dataset publik keuangan pribadi dari Kaggle sebagai acuan analisis tren pengeluaran.
+Penyediaan fitur pemantauan pagu anggaran (budget warning) dan saran penghematan.
+Pengembangan antarmuka web prototipe menggunakan arsitektur Laravel, Tailwind CSS, dan basis data relasional.
+
+Manfaat
+Bagi mahasiswa dan pengguna umum: mempermudah pencatatan rutin, memperjelas batas anggaran belanja, dan menumbuhkan kebiasaan finansial yang sehat.
+Bagi dosen penilai: memberikan artefak perancangan agen cerdas yang lengkap dengan metrik evaluasi dan skenario uji yang terukur.
+Bagi program studi: menjadi contoh penerapan agen AI pada rekayasa perangkat lunak dengan memperhatikan keamanan data dan etika kecerdasan buatan.
+Bagi pengembangan sistem: menyediakan struktur kode modular sehingga modul AI, aturan bisnis, dan antarmuka dapat dikembangkan secara independen.
+
+Dasar Penelitian Terdahulu
+Perkembangan kecerdasan buatan bergerak dari chatbot berbasis aturan sederhana menuju agen berbasis model bahasa besar (LLM). Model modern dapat memahami konteks, merencanakan langkah penyelesaian masalah, serta memanggil fungsi atau alat eksternal (Wang et al., 2024), (Xi et al., 2023). Pada bidang pengelolaan keuangan pribadi (Personal Financial Management / PFM), pemrosesan bahasa alami membantu mengurangi rasa malas mencatat akibat antarmuka aplikasi lama yang kaku dan mengharuskan banyak klik (Patel et al., 2024), (Agarwal et al., 2024).
+Tabel 1.1 membandingkan enam penelitian terdahulu yang memakai pendekatan dan dataset beragam, dari DistilBERT dan LayoutLM sampai model finansial berskala besar. Tidak satu pun studi tersebut menyatukan ekstraksi teks transaksi dengan evaluasi pagu anggaran secara langsung. Celah itulah yang diisi oleh rancangan FINRA.
+Sintesis Celah Penelitian (Research Gap) dan Posisi Kebaruan (Novelty)
+Perbandingan pada Tabel 1.1 memperlihatkan tiga keterbatasan utama dalam penelitian terdahulu:
+Pemisahan ekstraksi teks dari logika anggaran: Model seperti DistilBERT (Patel et al., 2024) atau LayoutLM (Lee et al., 2022) berhasil mengekstrak entitas dengan baik, tetapi hanya berhenti pada tahap penandaan teks tanpa menghubungkannya ke evaluasi batas pagu kas riil.
+Kelemahan kalkulasi angka pada LLM: Model bahasa kerap keliru saat menghitung saldo kumulatif atau memberi saran spekulatif tanpa dasar data yang pasti (Lo & Ross, 2024), (Tabassi, 2023).
+Keterbatasan pemahaman bahasa lokal informal: Aplikasi pencatat keuangan umum (Agarwal et al., 2024) masih mengandalkan formulir manual, sementara model finansial internasional (Yang et al., 2023) belum mengenali kosakata belanja harian Indonesia seperti "goceng", "ceban", atau "bensin".
+Kebaruan rancangan FINRA:
+Untuk mengatasi kendala tersebut, FINRA menggabungkan tiga pendekatan:
+1. Pengurai teks fleksibel berbasis prompt terstruktur: Agen menggunakan instruksi khusus untuk mengubah kalimat informal Indonesia menjadi format JSON berisi tanggal, nominal, dan kategori belanja.2. Pemisahan nalar bahasa dan mesin hitung: LLM hanya bertugas memahami teks percakapan, sedangkan kalkulasi saldo, rasio anggaran 50/30/20, dan batas kuota 80% dihitung oleh modul komputasi deterministik agar hasilnya bebas kesalahan aritmatika.3. Pembatasan keamanan berbasis NIST AI RMF 1.0: Agen menerapkan batasan ketat untuk mencegah anjuran spekulatif dan mewajibkan konfirmasi pengguna sebelum transaksi disimpan permanen (Technology, 2024).
+Landasan Teori Kecerdasan Buatan yang Digunakan
+Perancangan agen FINRA bertumpu pada tiga landasan teori kecerdasan buatan:
+1. In-Context Learning pada Model Bahasa: Model Transformer merepresentasikan makna teks secara semantik (Yang et al., 2023), (Russell & Norvig, 2020). FINRA menerapkan teknik In-Context Learning (ICL) dan few-shot prompting, di mana model diberi contoh teks belanja dan keluaran JSON yang diharapkan tanpa mengubah parameter internal model.
+2. Orkestrasi Agen dan Pemanggilan Alat (Tool Calling): Agen cerdas didefinisikan sebagai sistem yang mengamati lingkungan lewat sensor, menyusun rencana lewat Agent Orchestrator, dan bertindak lewat alat bantu eksternal (Takayanagi et al., 2025), (Singh et al., 2025). Di FINRA, orkestrator menjalankan alur berurutan: menerima teks, mengekstrak entitas, membaca database, mengevaluasi pagu, lalu menyusun respons.
+3. Penjaga Keamanan Berbasis Aturan (Rule-Based Guardrails): Model generatif fleksibel dalam berbahasa, tetapi untuk aturan bisnis dan batasan keamanan, sistem berbasis aturan tetap paling andal (Russell & Norvig, 2020), (McGrath et al., 2025). Logika aturan digunakan untuk memvalidasi ambang batas anggaran, mencegah ambiguitas nominal, dan menangkal serangan injeksi perintah (prompt injection defense).
+
+Hipotesis/Rancangan Solusi
+Sistem FINRA dapat mempermudah pencatatan dan pemantauan keuangan harian melalui integrasi pengurai bahasa alami, basis data transaksi terstruktur, dan evaluasi anggaran otomatis. Rancangan ini dinilai berdasarkan ketepatan parsing teks, kesesuaian kategori belanja, keakuratan peringatan pagu, serta kemudahan bagi pengguna.
+
+BAB 2  PERSYARATAN FUNGSIONAL
+============================================================
+Persyaratan fungsional merinci seluruh tugas dan kemampuan operasional yang harus dijalankan oleh sistem agen cerdas FINRA, mulai dari penerimaan pesan teks, kategorisasi transaksi, hingga pelaporan berkala.
+Sepuluh kebutuhan fungsional pada Tabel 2.1 (FR-01 sampai FR-10) menjadi acuan perilaku sistem, mulai dari penerimaan pesan teks, ekstraksi entitas transaksi, dan kategorisasi otomatis sampai penyajian ringkasan serta peringatan anggaran. Tiap kebutuhan membawa prioritas dan kriteria penerimaan sendiri sehingga bisa diuji secara terukur.
+
+Use Case Utama
+Gambar 2.1 menempatkan pengguna sebagai satu-satunya aktor, yang berinteraksi dengan agen FINRA lewat antarmuka percakapan. Ada enam use case inti di dalamnya: mencatat pengeluaran, menampilkan ringkasan mingguan, mengatur batas anggaran, memberi saran penghematan, menampilkan riwayat saldo, dan mengeskalasi permintaan yang ambigu. Semua fungsi pencatatan dan evaluasi anggaran berpusat pada aktor itu, dengan agen sebagai pengawas.
+Enam use case utama pada Tabel 2.2 menghubungkan pengguna dengan fungsi inti sistem. Masing-masing dilengkapi precondition, alur singkat, dan output yang diharapkan, jadi batas tanggung jawab pengguna dan agen terlihat jelas.
+
+Aturan Bisnis Agen
+RB-01: FINRA tidak boleh mengarang nilai transaksi atau saldo apabila input tidak menyebutkan nominal secara eksplisit.
+RB-02: Transaksi dengan status tanggal atau format waktu kedaluwarsa/tidak valid tidak boleh diproses tanpa konfirmasi pengguna.
+RB-03: Tool transaksional memerlukan otorisasi dan konfirmasi eksplisit sebelum melakukan aksi yang berdampak pada perubahan atau penghapusan data pengguna.
+RB-04: Jika confidence klasifikasi berada di bawah ambang yang ditentukan atau terdapat anomali pengeluaran, agen wajib meminta klarifikasi atau melakukan penyesuaian manual.
+RB-05: Informasi finansial pribadi hanya digunakan sesuai role, purpose, dan permission pengguna.
+RB-06: Saran finansial harus bersifat edukatif dan preventif; FINRA dilarang memberikan anjuran spekulatif atau keputusan investasi berisiko tinggi tanpa persetujuan pengguna.
+
+Sumber Akuisisi Pengetahuan (Knowledge Acquisition)
+Basis pengetahuan dan mesin inferensi aturan FINRA diperoleh dari tiga sumber acuan:
+1. Aturan Alokasi Anggaran 50/30/20: Merujuk pada panduan Elizabeth Warren yang membagi arus kas bulanan ke dalam tiga pos utama, yaitu Kebutuhan Pokok (Needs 50%), Keinginan (Wants 30%), dan Tabungan atau Investasi (Savings 20%).
+2. Dataset Keuangan Pribadi Kaggle: Korpus data transaksi perbankan dimanfaatkan untuk menyusun taksonomi pos belanja, menguji distribusi pengeluaran, serta memvalidasi aturan kategorisasi.
+3. Kamus Bahasa Belanja Harian: Daftar kata kunci informal, istilah sehari-hari (seperti 'ngopi', 'bensin', 'goceng', 'ceban'), dan singkatan disusun untuk memandu model bahasa mengenali entitas finansial secara kontekstual.
+
+BAB 3  PERSYARATAN NON-FUNGSIONAL
+============================================================
+Persyaratan non-fungsional menetapkan tolok ukur kualitas, performa, keamanan, dan keandalan sistem FINRA sebagaimana dirangkum pada Tabel 3.1.
+Tabel 3.1 memuat sepuluh atribut non-fungsional (NFR-01 sampai NFR-10) yang menetapkan target kualitas pada performa, ketersediaan, keandalan, keamanan, dan kemudahan penggunaan. Setiap atribut dipasangkan dengan metrik pengujian supaya pemenuhannya bisa dibuktikan.
+
+Keamanan dan Tata Kelola
+Karena mengelola data pengeluaran pribadi, keamanan dan tata kelola dirancang sejak awal pada setiap komponen sistem dengan prinsip minimasi data, pemisahan hak akses, dan pencatatan audit yang akuntabel.
+Penerapan teknis tata kelola dan keamanan sistem FINRA mencakup aspek-aspek berikut:
+Akses dan Identitas: Menerapkan autentikasi token OAuth2/JWT serta kontrol akses berbasis peran (Role-Based Access Control / RBAC) agar pengguna hanya dapat mengakses data miliknya sendiri.
+Perlindungan Data: Seluruh data transaksi pribadi dilindungi enkripsi saat transit (TLS 1.3) dan saat tersimpan di basis data (AES-256).
+Keamanan Prompt: Instruksi sistem dikunci secara ketat agar tidak dapat disusupi atau dimanipulasi oleh input pengguna (prompt injection defense).
+Pembatasan Tool: Penggunaan fungsi eksternal dibatasi melalui daftar izin (allow-list), validasi skema data, dan batas waktu eksekusi (timeout) guna mencegah penyalahgunaan.
+Jejak Audit: Setiap keputusan agen, eksekusi tool, dan perubahan data dicatat dalam berkas log terstruktur yang aman untuk kebutuhan penelusuran.
+Pengawasan Pengguna (Human in the Loop): Apabila sistem mendeteksi ambiguitas nominal, konflik kategori, atau permintaan di luar wewenang, keputusan akhir diserahkan kepada konfirmasi pengguna.
+Pengamanan berlapis ini menjaga sistem tetap aman dan terpercaya tanpa menghambat kenyamanan pencatatan harian.
+
+BAB 4  DESAIN ARSITEKTUR
+============================================================
+
+Arsitektur Sistem
+Sistem FINRA mengadopsi arsitektur berlapis yang dikoordinasikan oleh Agent Orchestrator. Komponen ini menghubungkan antarmuka pengguna, modul pemrosesan bahasa, layanan AI Google Gemini, basis data transaksi, serta modul analitik, dengan tetap membatasi hak akses antar-komponen secara ketat.
+Arsitektur FINRA pada Gambar 4.1 tersusun berlapis: antarmuka pengguna, API Gateway, Agent Orchestrator, LLM Adapter, Tool Layer, lalu basis data dan modul analitik. Agent Orchestrator menjadi pusat koordinasi yang meneruskan permintaan ke modul yang tepat, sedangkan Policy/Guardrail dan Audit/Observability membatasi sekaligus merekam setiap eksekusi. Dengan pemisahan ini, perubahan pada satu komponen tidak merambat ke komponen lain.
+
+Arsitektur Modul
+Sembilan modul sistem pada Tabel 4.1 punya tanggung jawab, masukan, dan keluaran yang terpisah. Karena itu setiap modul bisa diuji dan dikembangkan sendiri tanpa mengubah modul lain.
+
+Alur Data dan Loop Penalaran
+Pada transaksi sederhana, FINRA mengekstrak data dari teks bebas, memeriksa kelengkapannya, lalu meminta konfirmasi bila terdapat keraguan. Untuk permintaan analisis, sistem mengambil data transaksi yang diizinkan dan melakukan kalkulasi secara langsung. Sebelum jawaban dikirim, modul verifikator memeriksa nominal dan kategori agar informasi yang disajikan selalu faktual.
+Activity diagram pada Gambar 4.2 mengikuti alur penalaran agen dari pesan masuk sampai respons akhir. Urutannya: validasi permintaan, klasifikasi intent, penyusunan rencana, pemanggilan tool kalkulasi, verifikasi hasil, dan pencatatan audit. Kalau verifikasi gagal, alur balik ke tahap ekstraksi selama batas percobaan belum habis, sehingga kesalahan nominal tidak langsung diteruskan ke pengguna.
+
+Infrastruktur Deployment
+Tabel 4.2 merinci spesifikasi infrastruktur: komponen komputasi, basis data, penyimpanan dataset, cache, layanan LLM, observabilitas, jaringan, dan pipeline CI/CD. Tiap komponen punya konfigurasi awal untuk pengembangan dan rencana peningkatan menuju lingkungan produksi.

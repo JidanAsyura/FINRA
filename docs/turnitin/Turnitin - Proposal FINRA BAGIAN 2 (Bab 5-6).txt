@@ -1,0 +1,133 @@
+BAB 5  DESAIN TERPERINCI
+============================================================
+
+Diagram Kelas Konseptual
+Model data FINRA mencakup entitas pengguna, sesi interaksi, data transaksi, alokasi anggaran, target keuangan, layanan analitik, dan log audit. Seluruh pemrosesan berjalan di bawah batas hak akses pengguna aktif sehingga kerahasiaan data tetap terjaga.
+Diagram kelas konseptual pada Gambar 5.1 memetakan users, sessions, messages, transactions, budgets, dataset_source, dan audit_logs beserta relasinya. Satu transaksi terhubung ke satu pengguna dan satu sesi, sementara anggaran dan log audit menempel pada pengguna yang sama. Struktur inilah yang dipakai menyusun skema basis data pada Tabel 5.1.
+
+Diagram Urutan: Alur Pencatatan Transaksi dan Analisis
+Alur kerja utama dimulai saat pengguna mengirimkan catatan belanja harian. Pesan diterima oleh modul NLP untuk mendeteksi tanggal, pos belanja, dan nominal. Sistem kemudian mencocokkannya dengan alokasi anggaran dan meminta konfirmasi. Setelah pengguna menyetujui, data dicatat ke database dan dasbor menampilkan saldo kas terbaru.
+Sequence diagram pada Gambar 5.2 memperlihatkan urutan pertukaran pesan antara pengguna, antarmuka, Agent Orchestrator, modul NLP, layanan LLM, dan basis data. Pesan belanja dipecah dulu menjadi tanggal, nominal, dan kategori sebelum dicocokkan dengan pagu anggaran. Verifikasi berjalan sebelum data disimpan, jadi pengguna menerima konfirmasi yang sudah memuat sisa anggaran terbaru.
+
+Desain Data (Skema Basis Data)
+Tujuh tabel utama membentuk skema basis data FINRA pada Tabel 5.1: users, sessions, messages, transactions, dataset_source, budgets, dan audit_logs. Relasi antartabel menjaga keterkaitan transaksi dengan pemiliknya dan memudahkan penelusuran lewat log audit.
+
+Pipeline Pengolahan Data Finansial & Dataset
+Mengimpor data historis yang relevan dan memiliki izin penggunaan, termasuk dataset publik apabila digunakan untuk pengujian atau pembelajaran pola.
+Melakukan pembersihan data (data cleaning) dan penyeragaman format kolom tanggal, nominal, serta kategori pengeluaran.
+Menyimpan data yang telah dinormalisasi pada penyimpanan terstruktur dengan pembatasan akses yang sesuai.
+Menerima masukan teks bebas dari pengguna dan menjalankan ekstraksi entitas (Text-to-Transaction Parser).
+Menerapkan aturan klasifikasi otomatis berdasarkan kata kunci atau model kecerdasan buatan ringan.
+Memeriksa batas anggaran (budget limit) dan memicu peringatan jika ambang batas terlampaui.
+Menghasilkan ringkasan dan rekomendasi finansial yang akurat serta transparan bagi pengguna.
+
+Algoritma Agent FINRA
+ALGORITMA: FINRA-AGENT
+Input: user_message, session_context, user_role Output: response
+Validasi request dan autentikasi token pengguna.
+Klasifikasikan intent masukan (tambah transaksi, cek saldo/anggaran, atau minta analisis).
+Jika terdeteksi anomali atau risiko keamanan -> terapkan policy penolakan/eskalasi.
+Buat rencana awal (initial plan):
+parse_transaction
+query_database / dataset
+execute_tool
+generate_insight
+Jika membutuhkan data historis/dataset: data <- query_historical_data(role_filter)
+Jika membutuhkan kalkulasi tool:
+tool_result <- execute_calculation_tool(args)
+Gabungkan konteks sesi, data transaksi, dan hasil analisis.
+LLM menghasilkan candidate_response yang terstruktur.
+Verifier memeriksa: keakuratan nominal, kesesuaian kategori, dan kepatuhan policy.
+Jika validasi gagal dan batas percobaan belum terlampaui: revisi parameter lalu ulangi proses ekstraksi.
+Jika tetap gagal:
+berikan pesan kesalahan yang jelas dan arahkan ke input manual.
+Catat event penting ke audit_logs.
+Kembalikan response final ke pengguna.
+
+Pseudocode Perencanaan Agen
+def handle_financial_request(request):
+session_ctx = load_session(request.session_id) intent = classify_intent(request.text, session_ctx)
+risk_assessment = assess_risk(intent, request.user_role) if risk_assessment.blocked:
+return escalate_to_user(risk_assessment.reason)
+execution_plan = create_plan(intent, session_ctx) for step in execution_plan.steps:
+if step.type == "PARSE_TX":
+data = parser.extract_transaction(request.text)
+elif step.type == "CALCULATE_BUDGET":
+data = tool.calculate_remaining_budget(step.args) else:
+data = None
+draft_response = llm.generate_financial_insight(request, session_ctx, data) verification = verifier.check_accuracy(draft_response, data)
+if verification.fail:
+return retry_or_notify_error(request, verification) audit.record_event(request, execution_plan, verification) return draft_response
+
+Desain Prompt dan Guardrail
+1. System Prompt: Mendefinisikan peran agen sebagai asisten keuangan harian, batasan kewenangan, format keluaran data, dan kepatuhan finansial.
+2. Developer Policy: Menetapkan aturan integritas data transaksi, standar sitasi dataset referensi, serta prosedur penanganan galat.
+3. Context Isolation: Memisahkan masukan pengguna dari instruksi sistem guna menangkal celah injeksi perintah (prompt injection).
+4. Output Policy: Melarang asumsi angka yang tidak tertulis, mewajibkan penyertaan sumber acuan, serta menyampaikan peringatan kuota kas secara transparan.
+
+Desain API
+Tabel 5.2 mendaftar tujuh endpoint API untuk antarmuka pengguna, dari autentikasi, pencatatan transaksi, dan pengecekan anggaran sampai pengambilan ringkasan dan riwayat. Tiap endpoint punya metode, fungsi, dan batas akses yang jelas.
+
+Proof of Concept (PoC) Python dan Analisis Eksperimen
+Untuk menguji kelayakan logika agen cerdas (Proof of Concept), kelompok mengimplementasikan modul analitik dengan Python 3.13 pada Google Colab menggunakan dataset Personal Finance dari Kaggle sebanyak 10.000 transaksi.
+
+Analisis Arus Kas dan Evaluasi Aturan Anggaran 50/30/20
+Modul pertama (Cashflow & Budget Engine) merekap mutasi kas tahun 2020 hingga 2024 dan memetakan kepatuhan pos pengeluaran aktual terhadap rasio 50/30/20 Elizabeth Warren.
+Visualisasi Proof of Concept pada Gambar 5.3 menunjukkan biaya sewa (Rent 17,3%), pangan (Food & Drink 17,1%), transportasi (Travel 18,1%), dan hiburan (Entertainment 15,8%) sebagai pos terbesar belanja pengguna. Komposisi ini otomatis memicu peringatan anggaran di modul FinraBudgetRecommendationService.
+
+Simulasi Alokasi Portofolio Finansial Fama-French Five-Factor
+Modul kedua menerapkan formulasi multi-faktor Fama-French (2015) untuk mengestimasi proyeksi imbal hasil dari surplus kas pengguna dengan acuan pasar Indonesia (Rf = 6,25% dan Rm - Rf = 6,5%).
+Hasil simulasi pada Gambar 5.4 memproyeksikan imbal hasil empat arketipe portofolio: Defensive Quality Compounder (CAGR 17,04%), Smart Beta Factor Balanced (CAGR 19,62%), Fama Value & High Yield Hunter (CAGR 20,22%), dan Small-Cap & Growth Alpha (CAGR 20,45%).
+
+Interpretasi Hasil dan Pembuktian Kelayakan Agen Cerdas
+Pengujian ini menunjukkan bahwa pipeline Python mampu memproses ribuan data transaksi secara stabil, integrasi aturan 50/30/20 efektif mendeteksi anomali belanja, dan formula Fama-French menghasilkan rekomendasi portofolio yang matematis dan bebas halusinasi.
+
+BAB 6  KOMPONEN, PROSES DAN PENANGANAN SITUASI AGENT FINRA
+============================================================
+
+Karakteristik dan Komponen Utama Agen Cerdas
+Karakteristik agen FINRA diuraikan melalui analisis PEAS, sifat lingkungan, klasifikasi jenis agen, serta arsitektur komponen internal mengacu pada teori Russell dan Norvig (Russell & Norvig, 2020).
+
+Analisis PEAS (Performance Measure, Environment, Actuators, Sensors)
+Analisis PEAS pada Tabel 6.1 menjabarkan ukuran kinerja (Performance Measure), lingkungan (Environment), aktuator (Actuators), dan sensor (Sensors) yang dimiliki agen FINRA. Keempatnya jadi dasar penetapan perilaku agen pada bab berikutnya.
+
+Karakteristik Lingkungan Agen (Environment Properties)
+Lingkungan operasional FINRA memiliki 6 sifat: (1) Partially observable: catatan keuangan yang diketahui hanya yang dimasukkan oleh pengguna; (2) Stochastic: masukan bahasa alami bervariasi dan keluaran model bahasa bersifat probabilistik; (3) Sequential: pencatatan hari ini menentukan akumulasi batas pagu hari berikutnya; (4) Dynamic: status kuota anggaran terus bergerak seiring waktu; (5) Discrete: transaksi memiliki data tanggal dan nilai nominal yang pasti; (6) Single-agent: sistem berfokus mengoptimalkan anggaran satu pengguna tanpa berkompetisi dengan agen lain.
+
+Klasifikasi Jenis Agen: Utility-Based Agent dengan Learning Element
+FINRA dirancang sebagai Utility-Based Agent dengan Learning Element yang berupaya memaksimalkan kondisi kesehatan finansial pengguna berdasarkan rasio 50/30/20, konsistensi menabung, dan pencegahan denda. Komponen pembelajarannya mencakup: Critic (menilai akurasi ekstraksi saat pengguna mengoreksi data), Learning Element (memperkaya kosakata belanja harian), serta Performance Element (menjalankan parser dengan aturan teroptimasi).
+
+6.1.4 Komponen Utama Agent
+Sembilan komponen internal agen pada Tabel 6.2 punya peran masing-masing: perception/input, planner, memory, parser/retriever, tool manager, LLM, verifier, policy engine, dan auditor. Karena perannya dipisah, keputusan agen tidak bergantung pada satu komponen saja.
+
+Proses Kerja Agen
+1. Observe: Menerima teks pesan, peran pengguna, status sesi aktif, dan penanda waktu.
+2. Interpret: Mengidentifikasi maksud transaksi (intent), besaran nominal, kategori pos belanja, dan tingkat risiko.
+3. Plan: Menentukan alur pemrosesan, apakah cukup parsing teks, pemeriksaan pagu, atau pembacaan riwayat kas.
+4. Act: Menjalankan ekstraksi entitas transaksi atau memanggil fungsi kalkulasi yang diizinkan.
+5. Reason: Menggabungkan data mutasi riil dengan tren anggaran untuk menyusun ringkasan kondisi keuangan.
+6. Verify: Memvalidasi kebenaran angka, konsistensi kategori, dan kepatuhan terhadap kebijakan sistem.
+7. Respond: Menyajikan konfirmasi transaksi yang berhasil dicatat beserta saran penghematan atau peringatan pagu.
+8. Log: Mencatat peristiwa transaksi ke dalam sistem log untuk keperluan audit berkala.
+
+Situasi Agen dan Penanganannya
+Tabel 6.3 memetakan empat situasi fungsional yang bisa muncul saat operasional, yaitu transaksi valid, informasi kurang, anggaran terlampaui, dan gangguan layanan, ke respons agen yang sesuai.
+Empat situasi keamanan pada Tabel 6.4, yakni akses ditolak, injeksi teks mencurigakan, permintaan di luar batas, dan kegagalan verifikasi, ditangani lewat respons penolakan atau eskalasi ke pengguna.
+
+Rencana Pengujian
+Rencana pengujian pada Tabel 6.5 mencakup delapan jenis uji: unit test, integration test, evaluasi dataset, evaluasi LLM, uji keamanan, uji beban, uji kegunaan, dan failure test. Tiap jenis uji punya metode dan target keberhasilan yang terukur.
+
+Tahapan Implementasi
+Tahapan implementasi pada Tabel 6.6 berjalan dari Pertemuan 9 sampai Pertemuan 15, dengan fokus pekerjaan dan capaian yang berbeda di tiap tahap. Susunan bertahap ini membuat pembangunan prototipe bisa dievaluasi per pertemuan.
+
+Risiko dan Mitigasi
+Tabel 6.7 memetakan dua risiko teknis utama, yaitu kesalahan ekstraksi teks dan ketidaksesuaian kategori pengeluaran, beserta dampak, probabilitas, dan langkah mitigasinya.
+Lima risiko keamanan pada Tabel 6.8, meliputi injeksi teks, kebocoran data finansial, ketergantungan berlebihan pada AI, biaya layanan LLM eksternal, dan kegagalan integrasi tool, masing-masing punya skenario mitigasi agar bisa ditekan sejak tahap rancangan.
+
+Indikator Keberhasilan
+Minimal 90% dari data uji (golden set) transaksi berhasil diekstrak dan dikategorikan secara tepat oleh sistem.
+Minimal 85% saran dan analisis keuangan dinilai relevan serta mudah dipahami oleh pengguna.
+Minimal 95% pemanggilan tool kalkulasi mematuhi batasan izin dan skema data yang ditetapkan.
+Nol celah keamanan kritis pada mekanisme autentikasi dan otorisasi prototipe.
+Waktu tunggu respons transaksi harian (latensi P95) memenuhi target di bawah 6 detik.
+Pengguna dapat mencatat transaksi, memeriksa anggaran, dan membaca ringkasan tanpa memerlukan pelatihan khusus.

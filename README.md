@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
 [![Colab PoC](https://img.shields.io/badge/Google%20Colab-PoC%20Active-orange.svg)](https://colab.research.google.com/drive/1UkFa2gaso8EK0PSTxS3tQhFhC4OTpD9f?usp=sharing)
-[![Proposal PDF](https://img.shields.io/badge/Proposal%20Document-PDF-red.svg)](./Proposal-Agen%20Cerdas%20FINRA.pdf)
+[![Proposal PDF](https://img.shields.io/badge/Proposal%20Document-PDF-red.svg)](./UTS-KB_F5A1_202410715146-202410715162.pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -15,7 +15,7 @@
 
 Sistem ini diajukan untuk memenuhi tugas Evaluasi Tengah Semester (ETS) mata kuliah **INFO-3530 Kecerdasan Buatan** — Program Studi Informatika, Universitas Bhayangkara Jakarta Raya.
 
-### 👥 Tim Pengembang (Kelompok FINRA - F5A1)
+### 👥 Tim Pengembang (Kelompok 17 - F5A1)
 1. **Jidan Asyura Hartana** (NIM: `202410715146`) — Lead AI & Backend Architecture (50%)
 2. **Yusuf Sanjaya** (NIM: `202410715162`) — System Requirements & Evaluation (50%)
 
@@ -36,16 +36,19 @@ Sistem ini diajukan untuk memenuhi tugas Evaluasi Tengah Semester (ETS) mata kul
 
 ## 📂 Berkas Dokumen & Artefak Proyek
 
-- 📄 **[Proposal-Agen Cerdas FINRA.pdf](./Proposal-Agen%20Cerdas%20FINRA.pdf)**: Dokumen naskah lengkap proposal ETS (Format Times New Roman 12, margin 3 cm, spasi 1,5, dilengkapi diagram arsitektur, diagram kelas, diagram urutan, evaluasi PoC Python, dan Lampiran A–E).
-- 📝 **[Proposal-Agen Cerdas FINRA.docx](./docs/Proposal-Agen%20Cerdas%20FINRA.docx)**: Dokumen Word master.
+- 📄 **[UTS-KB_F5A1_202410715146-202410715162.pdf](./UTS-KB_F5A1_202410715146-202410715162.pdf)**: Dokumen naskah lengkap proposal ETS (Format Times New Roman 12, margin 3 cm, spasi 1,5, total 74 halaman, dilengkapi diagram arsitektur, diagram kelas, diagram urutan, evaluasi PoC Python, dokumentasi GUI prototipe, bukti deteksi AI ZeroGPT, dan Lampiran A–J).
+- 📝 **[UTS-KB_F5A1_202410715146-202410715162.docx](./UTS-KB_F5A1_202410715146-202410715162.docx)**: Dokumen Word master.
 - 🐍 **[finra_factor_analysis.py](./finra_factor_analysis.py)**: Kode sumber modul analitik Python PoC.
 - 📊 **[dataset_transactions.csv](./dataset_transactions.csv)**: Dataset benchmark transaksi Kaggle (10.000 baris transaksi).
-- 🖼️ **[docs/figures/](./docs/figures/)**: Seluruh diagram sistem beresolusi tinggi:
+- 🖼️ **[docs/figures/](./docs/figures/)**: Seluruh diagram sistem dan tangkapan layar beresolusi tinggi:
   - `gambar_4_1_arsitektur_finra.png` — Diagram Arsitektur Sistem FINRA
   - `gambar_5_1_class_diagram.png` — Diagram Kelas Konseptual
   - `gambar_5_2_sequence_diagram.png` — Diagram Urutan Pencatatan Transaksi
   - `gambar_5_3_poc_cashflow_503020.png` — Visualisasi Arus Kas & Pos 50/30/20
   - `gambar_5_4_poc_fama_french.png` — Grafik Simulasi Return Portofolio Multi-Faktor
+  - `gambar_i_1_gui_dashboard.png` s/d `gambar_i_6_gui_goals.png` — Dokumentasi Antarmuka GUI Prototipe FINRA (Lampiran I)
+  - `gambar_j_1_zerogpt_part1.png` & `gambar_j_2_zerogpt_part2.png` — Bukti Pemeriksaan Deteksi AI ZeroGPT (Lampiran J)
+- 📝 **[docs/turnitin/](./docs/turnitin/)**: Berkas teks polos Bab 1–6 (versi naratif & tabel) untuk pengujian orisinalitas dan deteksi AI.
 
 ### 🔗 Tautan Eksternal
 - **Notebook Google Colab (Proof of Concept Python)**:  
